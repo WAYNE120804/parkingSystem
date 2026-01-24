@@ -1,5 +1,4 @@
-import { http } from "./http";
-
+import { http } from "./http"
 export const getVehicles = () =>
   http.get("/vehicles").then(r => r.data);
 

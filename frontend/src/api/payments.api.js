@@ -1,10 +1,10 @@
-const {http} = require("./http");
+import { http } from "./http"
 
 export const getPayments = () =>
   http.get("/payments").then(r => r.data);
 
 export const createPayment = (MovementId, data) =>
-  http.post(`/payments/${MovementId}`, data).then(r => r.data);
+  http.post(`/payments/payMovement/${movementId}`, data).then(r => r.data);
 
 export const getPaymentById = (idPayment) =>
   http.get(`/payments/${idPayment}`).then(r => r.data);

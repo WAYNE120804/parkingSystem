@@ -1,4 +1,4 @@
-const {http} = require("./http");
+import { http } from "./http"
 
 export const getRates = () =>
   http.get("/rates").then(r => r.data);

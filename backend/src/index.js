@@ -1,6 +1,22 @@
 const express = require("express");
 const cors = require("cors");
 
+const app = express();
+
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
 
 // Rutas
 const userRoutes = require("./Routes/userRoute");
@@ -8,10 +24,6 @@ const vehicleRoutes = require("./Routes/vehicleRouter");
 const movementRoutes = require("./Routes/movementRoute");
 const rateRoutes = require("./Routes/rateRoute");
 const paymentRoutes = require("./Routes/paymentRoute");
-
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
