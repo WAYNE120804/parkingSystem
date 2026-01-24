@@ -1,0 +1,24 @@
+{
+  "name": "parkingsystem",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "keywords": [],
+  "author": "jhon sebastian diaz villa",
+  "license": "UNLICENSED",
+  "description": "sistema para parqueaderos que registra entrada y salida de vehiculos",
+  "dependencies": {
+    "@prisma/client": "^6.19.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.2"
+  }
+}
