@@ -87,3 +87,37 @@ exports.getPaymentByMovementId = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// Endpoint para calcular el pago sin registrar salida
+exports.previewPayment = async (req, res) => {
+  const { movementId } = req.params;
+
+  try {
+    const preview = await paymentService.calculatePreviewPayment(Number(movementId));
+    res.json(preview);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Endpoint para registrar salida y pago
+exports.exitMovement = async (req, res) => {
+  const { movementId } = req.body;
+  const { exitUserId, paidByUserId, method } = req.body;
+
+  try {
+    const movement = await paymentService.payMovement({
+      movementId,
+      exitUserId,
+      paidByUserId,
+      method
+    });
+    res.json(movement);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+};

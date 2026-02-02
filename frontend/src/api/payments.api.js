@@ -17,3 +17,7 @@ export const updatePayment = (idPayment, data) =>
 
 export const deletePayment = (idPayment) =>
   http.delete(`/payments/${idPayment}`).then(r => r.data);
+
+export const previewPayment = (movementId) =>
+  http.get(`/payments/previewPayment/${movementId}`).then(r => r.data);
+

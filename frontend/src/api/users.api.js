@@ -10,13 +10,13 @@ export const getUserById = (idUser) =>
   http.get(`/users/${idUser}`).then(r => r.data);
 
 export const getAllUsers = () =>
-  http.get("/users/all").then(r => r.data);
+  http.get("/users/getAll").then(r => r.data);
 
 export const updateUser = (idUser, data) =>
   http.put(`/users/${idUser}`, data).then(r => r.data);
 
 export const deleteUser = (idUser) =>
-  http.delete(`/users/${idUser}`).then(r => r.data);
+  http.delete(`/users/delete/${idUser}`).then(r => r.data);
 
 export const getUsersByRole = (roleUser) =>
   http.get(`/users/by-role/${roleUser}`).then(r => r.data);

@@ -24,6 +24,7 @@ const vehicleRoutes = require("./Routes/vehicleRouter");
 const movementRoutes = require("./Routes/movementRoute");
 const rateRoutes = require("./Routes/rateRoute");
 const paymentRoutes = require("./Routes/paymentRoute");
+const parkingInfoRoutes = require("./Routes/parkingInfoRoute");
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -43,6 +44,9 @@ app.use("/rates", rateRoutes);
 
 // rutas de pagos
 app.use("/payments", paymentRoutes);
+
+//ruta de informacion del parqueadero
+app.use("/parkingInfo", parkingInfoRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, "0.0.0.0", () => {

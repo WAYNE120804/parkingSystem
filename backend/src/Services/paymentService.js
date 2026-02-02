@@ -116,3 +116,83 @@ exports.getPaymentByMovementId = async (movementId) => {
 
   return payment;
 };
+
+// Solo calcula el pago, no registra salida
+exports.calculatePreviewPayment = async (movementId) => {
+  const movement = await prisma.movement.findUnique({
+    where: { idMovement: movementId },
+    include: { vehicle: true }
+  });
+
+  if (!movement) {
+    throw new Error("Movimiento no encontrado");
+  }
+
+  const rate = await prisma.rate.findUnique({
+    where: { vehicleType: movement.vehicle.typeVehicle }
+  });
+
+  if (!rate) {
+    throw new Error("No hay tarifa configurada para este tipo de vehículo");
+  }
+
+  const now = new Date();
+  const hours = calculateRoundedHours(movement.entryTime, now);
+  const amountCents = hours * rate.pricePerHourCents;
+
+  return {
+    movementId: movement.idMovement,
+    plate: movement.vehicle.plateVehicle,
+    hours,
+    amountCents
+  };
+};
+
+// Registra salida y pago en una transacción
+exports.payMovement = async ({ movementId, exitUserId, paidByUserId, method }) => {
+  const now = new Date();
+
+  return prisma.$transaction(async (tx) => {
+    const movement = await tx.movement.findUnique({
+      where: { idMovement: movementId },
+      include: { vehicle: true, payment: true }
+    });
+
+    if (!movement) throw new Error("Movimiento no encontrado");
+    if (movement.status !== "IN") throw new Error("Movimiento no válido para salida");
+    if (movement.payment) throw new Error("El movimiento ya tiene un pago registrado");
+
+    const rate = await tx.rate.findUnique({
+      where: { vehicleType: movement.vehicle.typeVehicle }
+    });
+
+    if (!rate) throw new Error("No hay tarifa configurada para este tipo de vehículo");
+
+    const hours = calculateRoundedHours(movement.entryTime, now);
+    const amountCents = hours * rate.pricePerHourCents;
+
+    await tx.movement.update({
+      where: { idMovement: movementId },
+      data: {
+        exitTime: now,
+        exitUserId,
+        status: "OUT"
+      }
+    });
+
+    await tx.payment.create({
+      data: {
+        movementId,
+        paidByUserId,
+        method,
+        amountCents,
+        ratePerHourCents: rate.pricePerHourCents
+      }
+    });
+
+    return tx.movement.findUnique({
+      where: { idMovement: movementId },
+      include: { vehicle: true, entryUser: true, exitUser: true, payment: true }
+    });
+  });
+};

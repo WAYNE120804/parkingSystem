@@ -34,6 +34,7 @@ exports.getUserById = async (idUser) => {
  */
 exports.getAllUsers = async () => {
   return prisma.user.findMany({
+    where: { isActive: true },
     orderBy: { createdAt: "desc" }
   });
 };
@@ -60,15 +61,10 @@ exports.updateUser = async (idUser, data) => {
  * Eliminar usuario
  */
 exports.deleteUser = async (idUser) => {
-  const user = await prisma.user.delete({
-    where: { idUser }
+  const user = await prisma.user.update({
+    where: { idUser },
+    data: { isActive: false }
   });
-
-  if (!user) {
-    const error = new Error("Usuario no encontrado");
-    error.code = "USER_NOT_FOUND";
-    throw error;
-  }
 
   return user;
 };

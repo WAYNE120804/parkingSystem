@@ -174,3 +174,29 @@ exports.cancelActiveMovement = async ({ idMovement, canceledByUserId, reason }) 
     include: { vehicle: true, entryUser: true, exitUser: true, payment: true }
   });
 };
+
+
+// GET /movements/previewPayment/:id
+exports.previewPayment = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Buscar el movimiento
+    const movement = await prisma.movement.findUnique({
+      where: { idMovement: Number(id) },
+      include: { vehicle: true }
+    });
+
+    if (!movement) {
+      return res.status(404).json({ error: "Movimiento no encontrado" });
+    }
+
+    // Usar el servicio de pago para calcular sin registrar
+    const preview = await paymentService.calculatePreviewPayment(movement);
+
+    res.json(preview);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al calcular el pago" });
+  }
+};
