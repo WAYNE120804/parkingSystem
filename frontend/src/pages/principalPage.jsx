@@ -8,7 +8,7 @@ import RegistrarSalidaForm from "../components/registrarSalidaForm";
 import TicketEntrada from "../components/ticketEntrada.jsx";
 import TicketSalida from "../components/TicketSalida.jsx";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext.jsx";
+import { useAuth, useUser } from "../context/UserContext.jsx";
 
 
 function PrincipalPage() {
@@ -19,12 +19,13 @@ function PrincipalPage() {
   const [showSalidaForm, setShowSalidaForm] = useState(false);
   const [selectedMovement, setSelectedMovement] = useState(null);
   const [showTicketModal, setShowTicketModal] = useState(false);
-  const [ticketType, setTicketType] = useState("entrada"); // "entrada" | "salida"
+  const [ticketType, setTicketType] = useState("entrada"); 
 
    const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
   const currentUser = useUser();
+  const { logout } = useAuth();
 
   const fetchMovements = async () => {
     try {
@@ -61,6 +62,9 @@ function PrincipalPage() {
       <div style={{ marginBottom: "20px" }}>
         <button onClick={() => setShowEntradaForm(true)}>Registrar Entrada</button>
 
+        <button onClick={() => navigate("/movements")}  style={{ marginLeft: "10px" }}>Ver Movimientos</button>
+        <button onClick={() => navigate("/payments")} style={{ marginLeft: "10px" }}>Ver Pagos</button>
+
         {currentUser.roleUser === "ADMIN" && (
           <button
             onClick={() => navigate("/config")}
@@ -69,6 +73,9 @@ function PrincipalPage() {
             Ir a Configuración
           </button>
         )}
+        <button onClick={() => { logout(); navigate("/login", { replace: true }); }} style={{ marginLeft: "10px" }}>
+          Cerrar sesión
+        </button>
       </div>
 
       {/* Modal Entrada */}
@@ -180,19 +187,16 @@ function PrincipalPage() {
       <td>{mov.notes}</td>
       <td>{mov.entryUser?.nameUser}</td>
       <td>
-  <button onClick={() => {
-    setSelectedMovement(mov);
-    setShowSalidaForm(true);
-  }}>
+  <button onClick={() => { setSelectedMovement(mov); setShowSalidaForm(true); }} style={{ marginLeft: "10px" }}>
     Dar salida
   </button>
-  <button onClick={() => handleCancel(mov.idMovement)}>
+  <button onClick={() => handleCancel(mov.idMovement)} style={{ marginLeft: "10px" }}>
     Cancelar
   </button>
   <button onClick={() => {
     setSelectedMovement(mov);
     setShowTicketModal(true);
-  }}>
+  }} style={{ marginLeft: "10px" }}>
     Imprimir Ticket
   </button>
 </td>

@@ -149,3 +149,12 @@ exports.cancelActiveMovement = async (req, res) => {
   }
 };
 
+exports.getAllMovements = async (_req, res) => {
+  try {
+    const movements = await movementService.getAllMovements();  
+    return res.json(movements);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+

@@ -7,7 +7,7 @@ import { getParkingInfo } from "../api/parkingInfo.api";
 
 import UserForm from "../components/userForm";
 import RateForm from "../components/RateForm";
-import { useUser } from "../context/UserContext.jsx";
+import { useAuth, useUser } from "../context/UserContext.jsx";
 import ParkingInfoConfig from "../components/parkingInfoConfig.jsx"; 
 
 function ConfiguracionPage() {
@@ -24,7 +24,8 @@ function ConfiguracionPage() {
   const [editingRate, setEditingRate] = useState(null);
 
   const [showParkingInfoForm, setShowParkingInfoForm] = useState(false);
-  const currentUser = useUser(); 
+  const currentUser = useUser();
+  const { logout, deleteCredential, changePassword, authUsers, saveCredential } = useAuth();
   const navigate = useNavigate();
 
   const [parkingInfo, setParkingInfo] = useState(null);
@@ -63,10 +64,35 @@ function ConfiguracionPage() {
     try {
       await deleteUser(idUser);
       alert("Usuario eliminado");
+      deleteCredential(idUser);
       fetchData();
     } catch (err) {
       alert("Error al eliminar usuario: " + err.message);
     }
+  };
+
+  const handleChangePassword = (u) => {
+    const newPass = prompt(`Nueva contraseña para ${u.nameUser}:`);
+    if (!newPass) return;
+    changePassword(u.idUser, newPass);
+    alert("Contraseña actualizada (solo guardada en el navegador)");
+  };
+
+  const handleChangeLogin = (u) => {
+    const cred = authUsers.find((c) => c.idUser === u.idUser);
+    const newUser = prompt("Nuevo usuario (login):", cred?.username || "");
+    if (!newUser) return;
+    const newPass = prompt("Nueva contraseña:", cred?.password || "");
+    if (!newPass) return;
+    saveCredential({
+      idUser: u.idUser,
+      username: newUser,
+      password: newPass,
+      nameUser: u.nameUser,
+      roleUser: u.roleUser,
+      active: true
+    });
+    alert("Login/contraseña actualizados (guardado local)");
   };
 
   if (loading) return <p>Cargando configuración...</p>;
@@ -85,7 +111,13 @@ function ConfiguracionPage() {
           >
             Ir a Entradas
           </button>
+          
         )}
+        <button onClick={() => navigate("/movements")} style={{ marginLeft: "10px" }}>Ver Movimientos</button>
+        <button onClick={() => navigate("/payments")} style={{ marginLeft: "10px" }}>Ver Pagos</button>
+        <button onClick={() => { logout(); navigate("/login", { replace: true }); }} style={{ marginLeft: "10px" }}>Cerrar sesión</button>
+
+        
       </div>
 
       {/* Usuarios */}
@@ -106,6 +138,8 @@ function ConfiguracionPage() {
             <tr>
               <th>ID</th>
               <th>Nombre</th>
+              <th>Login</th>
+              <th>Contraseña (local)</th>
               <th>Rol</th>
               <th>Acciones</th>
             </tr>
@@ -119,13 +153,21 @@ function ConfiguracionPage() {
                 <tr key={u.idUser}>
                   <td>{u.idUser}</td>
                   <td>{u.nameUser}</td>
+                  <td>{authUsers.find((c) => c.idUser === u.idUser)?.username || "-"}</td>
+                  <td>{authUsers.find((c) => c.idUser === u.idUser)?.password || "-"}</td>
                   <td>{u.roleUser}</td>
                   <td>
-                    <button onClick={() => { setEditingUser(u); setShowUserForm(true); }}>
+                    <button onClick={() => { setEditingUser(u); setShowUserForm(true); }} style={{ marginLeft: "10px" }}>
                       Editar
                     </button>
-                    <button onClick={() => handleDeleteUser(u.idUser)}>
+                    <button onClick={() => handleDeleteUser(u.idUser)} style={{ marginLeft: "10px" }}>
                       Eliminar
+                    </button>
+                    <button onClick={() => handleChangePassword(u) } style={{ marginLeft: "10px" }}>
+                      Cambiar contraseña
+                    </button>
+                    <button onClick={() => handleChangeLogin(u)} style={{ marginLeft: "10px" }}>
+                      Cambiar login/contraseña
                     </button>
                   </td>
                 </tr>
@@ -187,7 +229,14 @@ function ConfiguracionPage() {
       {showUserForm && (
         <UserForm
           mode={editingUser ? "edit" : "create"}
-          user={editingUser}
+          user={
+            editingUser
+              ? {
+                  ...editingUser,
+                  ...authUsers.find((c) => c.idUser === editingUser.idUser)
+                }
+              : null
+          }
           onClose={() => setShowUserForm(false)}
           onSuccess={fetchData}
         />

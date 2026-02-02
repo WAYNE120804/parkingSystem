@@ -22,6 +22,7 @@ const TicketContent = forwardRef(({ parkingInfo, movement }, ref) => {
       <p>Placa: {movement.vehicle?.plateVehicle}</p>
       <p>Tipo: {movement.vehicle.typeVehicle}</p>
       <p>Entrada: {new Date(movement.entryTime).toLocaleString()}</p>
+      <p>Notas: {movement.notes}</p>
       {movement.exitTime && (
         <>
           <p>Salida: {new Date(movement.exitTime).toLocaleString()}</p>

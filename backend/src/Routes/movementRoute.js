@@ -14,5 +14,7 @@ router.post("/cancelMovement/:movementId", movementController.cancelActiveMoveme
 router.get("/getById/:idMovement", movementController.getMovementById);
 router.get("/getByTicket/:ticketNumber", movementController.getMovementByTicket);
 
+router.get("/getAllMovements", movementController.getAllMovements);
+
 
 module.exports = router;

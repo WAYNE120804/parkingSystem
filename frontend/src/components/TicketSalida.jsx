@@ -2,18 +2,27 @@ import React, { useEffect, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { getParkingInfo } from "../api/parkingInfo.api";
 
-function formatCOP(amountCents) {
-  if (amountCents == null) return "-";
+function formatCOP(amount) {
+  if (amount == null) return "-";
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
     currency: "COP",
+    currencyDisplay: "code",
     minimumFractionDigits: 0
-  }).format(amountCents / 100);
+  }).format(amount);
 }
 
 function TicketSalida({ movement, autoPrint = false }) {
   const [parkingInfo, setParkingInfo] = useState(null);
   const componentRef = useRef();
+  const methodLabels = {
+  CASH: "Efectivo",
+  CARD: "Tarjeta",
+  transfer: "Transferencia",
+  nequi: "Nequi",
+  daviplata: "Daviplata"
+};
+
 
   useEffect(() => {
     const fetchInfo = async () => {
@@ -28,7 +37,9 @@ function TicketSalida({ movement, autoPrint = false }) {
   }, []);
 
   const handlePrint = useReactToPrint({
-    contentRef: componentRef
+    // Compatibilidad v2/v3
+    contentRef: componentRef,
+    content: () => componentRef.current
   });
 
   useEffect(() => {
@@ -43,6 +54,8 @@ function TicketSalida({ movement, autoPrint = false }) {
   const payment = movement.payment;
 
   return (
+  <div>
+    {/* Contenido del recibo: este sí se imprime */}
     <div
       ref={componentRef}
       style={{
@@ -65,14 +78,28 @@ function TicketSalida({ movement, autoPrint = false }) {
       <p>Tipo: {movement.vehicle?.typeVehicle}</p>
       <p>Entrada: {new Date(movement.entryTime).toLocaleString()}</p>
       <p>Salida: {new Date(movement.exitTime).toLocaleString()}</p>
-      <p>Horas cobradas: {payment?.ratePerHourCents ? Math.round((payment.amountCents ?? 0) / payment.ratePerHourCents) : "-"}</p>
-      <p>Tarifa/hora: {payment?.ratePerHourCents ? formatCOP(payment.ratePerHourCents) : "-"}</p>
+      <p>
+        Horas cobradas:{" "}
+        {payment?.ratePerHourCents
+          ? Math.round((payment.amountCents ?? 0) / payment.ratePerHourCents)
+          : "-"}
+      </p>
+      <p>
+        Tarifa/hora:{" "}
+        {payment?.ratePerHourCents ? formatCOP(payment.ratePerHourCents) : "-"}
+      </p>
       <p>Total: {formatCOP(payment?.amountCents)}</p>
-      <p>Método: {payment?.method}</p>
+      <p>Método: {methodLabels[payment?.method] ?? payment?.method}</p>
       <hr />
       <p>{parkingInfo.footerMessage}</p>
     </div>
-  );
+
+    {/* Botón fuera del recibo: este NO se imprime */}
+    <div style={{ marginTop: "12px" }}>
+      <button onClick={handlePrint}>Imprimir</button>
+    </div>
+  </div>
+);
 }
 
 export default TicketSalida;

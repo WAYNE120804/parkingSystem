@@ -27,3 +27,6 @@ export const getActiveMovementsByPlate = (plate) =>
 export const previewPayment = (movementId) =>
   http.get(`/movements/previewPayment/${movementId}`).then(r => r.data);
 
+export const getAllMovements = () =>
+  http.get("/movements/getAllMovements").then(r => r.data);
+

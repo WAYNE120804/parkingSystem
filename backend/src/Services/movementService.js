@@ -131,7 +131,7 @@ exports.getMovementsByPlateActive = async (plateVehicle) => {
     orderBy: { entryTime: "desc" }
   });
 
-  return movements; // puedes decidir si devuelves [] o lanzas error si no hay
+  return movements;
 };
 
 // Alias para mantener compatibilidad con el controlador
@@ -200,3 +200,11 @@ exports.previewPayment = async (req, res) => {
     res.status(500).json({ error: "Error al calcular el pago" });
   }
 };
+
+
+exports.getAllMovements = async () => {
+  return prisma.movement.findMany({
+    include: { vehicle: true, entryUser: true, exitUser: true, payment: true },
+    orderBy: { entryTime: "desc" }
+  });
+}
