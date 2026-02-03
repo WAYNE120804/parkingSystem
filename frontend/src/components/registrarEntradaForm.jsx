@@ -3,6 +3,12 @@ import { registerEntry } from "../api/movements.api";
 import { getVehicleByPlate } from "../api/vehicles.api";
 import { useUser } from "../context/UserContext.jsx";
 
+// 🔑 Función utilitaria para normalizar placas
+function normalizePlate(plate) {
+  if (!plate) return "";
+  return plate.replace(/\s+/g, "").toUpperCase();
+}
+
 function RegistrarEntradaForm({ onClose, onSuccess }) {
   const [plate, setPlate] = useState("");
   const [typeVehicle, setTypeVehicle] = useState("CAR");
@@ -12,7 +18,8 @@ function RegistrarEntradaForm({ onClose, onSuccess }) {
 
   useEffect(() => {
     if (plate.length >= 5) {
-      getVehicleByPlate(plate.toUpperCase())
+      const normalized = normalizePlate(plate);
+      getVehicleByPlate(normalized)
         .then((vehicle) => setVehicleExists(vehicle))
         .catch(() => setVehicleExists(null));
     }
@@ -20,8 +27,9 @@ function RegistrarEntradaForm({ onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     try {
+      const normalized = normalizePlate(plate);
       const movement = await registerEntry({
-        plate: plate.toUpperCase(),
+        plate: normalized,
         typeVehicle: vehicleExists ? vehicleExists.typeVehicle : typeVehicle,
         entryUserId: currentUser.idUser,
         notes
