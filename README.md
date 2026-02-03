@@ -27,9 +27,6 @@ El sistema está pensado para **entornos reales**, priorizando la **simplicidad 
 - Métodos de pago soportados:
   - 💵 Efectivo
   - 💳 Tarjeta
-  - 🔁 Transferencia
-  - 📱 Nequi
-  - 📲 Daviplata
 
 ### 🧾 Tickets e impresión
 - Ticket de **entrada**
