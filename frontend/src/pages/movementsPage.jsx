@@ -3,6 +3,7 @@ import { getAllMovements } from "../api/movements.api";
 import TicketSalida from "../components/TicketSalida.jsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useUser } from "../context/UserContext.jsx";
+import { useSettings } from "../context/SettingsContext.jsx";
 
 function MovementsPage() {
   const [data, setData] = useState([]);
@@ -23,6 +24,7 @@ function MovementsPage() {
   const navigate = useNavigate();
   const currentUser = useUser();
   const { logout } = useAuth();
+  const { logoUrl } = useSettings();
 
   const fetchMovements = async () => {
     try {
@@ -73,7 +75,22 @@ function MovementsPage() {
       <p>Bienvenido {currentUser.nameUser}</p>
 
       {/* Botones de navegación */}
-      <div style={{ marginBottom: "20px" }}>
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap"
+        }}
+      >
+        {logoUrl && (
+          <img
+            src={logoUrl}
+            alt="Logo Parqueadero"
+            style={{ height: "60px", width: "auto", objectFit: "contain" }}
+          />
+        )}
         <button onClick={() => navigate("/entries")}>Ir a Entradas</button>
         {currentUser.roleUser === "ADMIN" && (
           <button

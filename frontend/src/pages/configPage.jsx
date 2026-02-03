@@ -9,6 +9,8 @@ import UserForm from "../components/userForm";
 import RateForm from "../components/RateForm";
 import { useAuth, useUser } from "../context/UserContext.jsx";
 import ParkingInfoConfig from "../components/parkingInfoConfig.jsx"; 
+import { useSettings } from "../context/SettingsContext.jsx";
+import { uploadLogo } from "../api/settings.api.js";
 
 function ConfiguracionPage() {
   const [users, setUsers] = useState([]);
@@ -29,6 +31,10 @@ function ConfiguracionPage() {
   const navigate = useNavigate();
 
   const [parkingInfo, setParkingInfo] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const { logoUrl, updateLogoUrl } = useSettings();
 
   const fetchData = async () => {
     try {
@@ -59,6 +65,16 @@ function ConfiguracionPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!logoFile) {
+      setLogoPreview("");
+      return;
+    }
+    const nextPreview = URL.createObjectURL(logoFile);
+    setLogoPreview(nextPreview);
+    return () => URL.revokeObjectURL(nextPreview);
+  }, [logoFile]);
 
   const handleDeleteUser = async (idUser) => {
     try {
@@ -95,6 +111,24 @@ function ConfiguracionPage() {
     alert("Login/contraseña actualizados (guardado local)");
   };
 
+  const handleLogoUpload = async () => {
+    if (!logoFile) {
+      alert("Selecciona un archivo primero.");
+      return;
+    }
+    try {
+      setUploadingLogo(true);
+      const data = await uploadLogo(logoFile, currentUser.roleUser);
+      updateLogoUrl(data.logoUrl);
+      setLogoFile(null);
+      alert("Logo actualizado correctamente");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   if (loading) return <p>Cargando configuración...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -103,7 +137,22 @@ function ConfiguracionPage() {
       <h2>Configuración</h2>
 
       {/* Botones superiores */}
-      <div style={{ marginBottom: "20px" }}>
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap"
+        }}
+      >
+        {logoUrl && (
+          <img
+            src={logoUrl}
+            alt="Logo Parqueadero"
+            style={{ height: "60px", width: "auto", objectFit: "contain" }}
+          />
+        )}
         {currentUser.roleUser === "ADMIN" && (
           <button
             onClick={() => navigate("/entries")}
@@ -118,6 +167,51 @@ function ConfiguracionPage() {
         <button onClick={() => { logout(); navigate("/login", { replace: true }); }} style={{ marginLeft: "10px" }}>Cerrar sesión</button>
 
         
+      </div>
+
+      {/* Logo del parqueadero */}
+      <div style={{ marginBottom: "40px" }}>
+        <h3>Logo del Parqueadero</h3>
+        <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
+          <div>
+            <p>Logo actual:</p>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Logo actual"
+                style={{ height: "60px", width: "auto", objectFit: "contain" }}
+              />
+            ) : (
+              <p>Sin logo cargado</p>
+            )}
+          </div>
+          <div>
+            <p>Nuevo logo:</p>
+            {logoPreview ? (
+              <img
+                src={logoPreview}
+                alt="Vista previa del nuevo logo"
+                style={{ height: "60px", width: "auto", objectFit: "contain" }}
+              />
+            ) : (
+              <p>Selecciona una imagen para vista previa</p>
+            )}
+          </div>
+        </div>
+        <div style={{ marginTop: "12px" }}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+          />
+          <button
+            onClick={handleLogoUpload}
+            style={{ marginLeft: "10px" }}
+            disabled={uploadingLogo}
+          >
+            {uploadingLogo ? "Subiendo..." : "Guardar Logo"}
+          </button>
+        </div>
       </div>
 
       {/* Usuarios */}

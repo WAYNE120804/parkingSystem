@@ -9,6 +9,7 @@ import TicketEntrada from "../components/ticketEntrada.jsx";
 import TicketSalida from "../components/TicketSalida.jsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useUser } from "../context/UserContext.jsx";
+import { useSettings } from "../context/SettingsContext.jsx";
 
 
 function PrincipalPage() {
@@ -26,6 +27,7 @@ function PrincipalPage() {
   const navigate = useNavigate();
   const currentUser = useUser();
   const { logout } = useAuth();
+  const { logoUrl } = useSettings();
 
   const fetchMovements = async () => {
     try {
@@ -59,7 +61,22 @@ function PrincipalPage() {
       <h2>Bienvenido {currentUser.nameUser}</h2>
 
       {/* Botones superiores */}
-      <div style={{ marginBottom: "20px" }}>
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap"
+        }}
+      >
+        {logoUrl && (
+          <img
+            src={logoUrl}
+            alt="Logo Parqueadero"
+            style={{ height: "60px", width: "auto", objectFit: "contain" }}
+          />
+        )}
         <button onClick={() => setShowEntradaForm(true)}>Registrar Entrada</button>
 
         <button onClick={() => navigate("/movements")}  style={{ marginLeft: "10px" }}>Ver Movimientos</button>
