@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { getParkingInfo } from "../api/parkingInfo.api";
+import { useSettings } from "../context/SettingsContext.jsx";
 
 function formatCOP(amount) {
   if (amount == null) return "-";
@@ -15,6 +16,7 @@ function formatCOP(amount) {
 function TicketSalida({ movement, autoPrint = false }) {
   const [parkingInfo, setParkingInfo] = useState(null);
   const componentRef = useRef();
+  const { logoUrl } = useSettings();
   const methodLabels = {
   CASH: "Efectivo",
   CARD: "Tarjeta",
@@ -69,6 +71,15 @@ function TicketSalida({ movement, autoPrint = false }) {
         lineHeight: "1.4"
       }}
     >
+      {logoUrl && (
+        <div style={{ textAlign: "center", marginBottom: "12px" }}>
+          <img
+            src={logoUrl}
+            alt="Logo Parqueadero"
+            style={{ height: "60px", width: "auto", objectFit: "contain" }}
+          />
+        </div>
+      )}
       <h3>{parkingInfo.parkingName}</h3>
       <p>NIT: {parkingInfo.nit}</p>
       <p>Dirección: {parkingInfo.address}</p>

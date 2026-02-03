@@ -3,6 +3,7 @@ import { getAllMovements } from "../api/movements.api";
 import { useReactToPrint } from "react-to-print";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useUser } from "../context/UserContext.jsx";
+import { useSettings } from "../context/SettingsContext.jsx";
 
 function formatCOP(amount) {
   if (amount == null) return "-";
@@ -37,6 +38,7 @@ function PaymentsPage({ autoPrint = false }) {
   const navigate = useNavigate();
   const currentUser = useUser();
   const { logout } = useAuth();
+  const { logoUrl } = useSettings();
 
   const componentRef = useRef();
 
@@ -102,7 +104,22 @@ function PaymentsPage({ autoPrint = false }) {
       <p>Bienvenido {currentUser.nameUser}</p>
 
       {/* Botones de navegación */}
-      <div style={{ marginBottom: "20px" }}>
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap"
+        }}
+      >
+        {logoUrl && (
+          <img
+            src={logoUrl}
+            alt="Logo Parqueadero"
+            style={{ height: "60px", width: "auto", objectFit: "contain" }}
+          />
+        )}
         <button onClick={() => navigate("/entries")}>Ir a Entradas</button>
         {currentUser.roleUser === "ADMIN" && (
           <button

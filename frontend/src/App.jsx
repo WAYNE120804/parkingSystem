@@ -10,6 +10,7 @@ import PaymentsPage from "./pages/paymentsMovements.jsx";
 import LoginPage from "./pages/loginPage.jsx";
 
 import { UserProvider, useAuth } from "./context/UserContext.jsx";
+import { SettingsProvider } from "./context/SettingsContext.jsx";
 
 function ProtectedRoute({ children, adminOnly = false }) {
   const { user } = useAuth();
@@ -26,8 +27,9 @@ function ProtectedRoute({ children, adminOnly = false }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <UserProvider>
-        <Routes>
+      <SettingsProvider>
+        <UserProvider>
+          <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/entries"
@@ -62,8 +64,9 @@ export default function App() {
             }
           />
           <Route path="*" element={<Navigate to="/entries" replace />} />
-        </Routes>
-      </UserProvider>
+          </Routes>
+        </UserProvider>
+      </SettingsProvider>
     </BrowserRouter>
   );
 }

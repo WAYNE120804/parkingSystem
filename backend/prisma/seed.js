@@ -16,6 +16,14 @@ async function main() {
   }
 
   console.log("Tarifas iniciales creadas/actualizadas");
+
+  await prisma.settings.upsert({
+    where: { id: 1 },
+    update: { logoUrl: "/uploads/logo.png" },
+    create: { id: 1, logoUrl: "/uploads/logo.png" }
+  });
+
+  console.log("Configuración inicial creada/actualizada");
 }
 
 main()
